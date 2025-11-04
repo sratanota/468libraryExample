@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import BookCard from './BookCard';
 
 export default function FeaturedBooks({ books, sectionName }: { books: any[]; sectionName: string }) {
+    if (!books){
+        return null;
+    }
     const [currentPage, setCurrentPage] = useState(0);
     const booksPerPage = 4;
     const totalPages = Math.ceil(books.length / booksPerPage);
@@ -33,7 +36,7 @@ export default function FeaturedBooks({ books, sectionName }: { books: any[]; se
                     {Array.from({ length: totalPages }).map((_, pageIndex) => (
                         <div key={pageIndex} className="min-w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                             {books.slice(pageIndex * booksPerPage, (pageIndex + 1) * booksPerPage).map((b) => (
-                                <BookCard book={b} key={b.id} />
+                                <BookCard book={b.book} key={b.copyid} />
                             ))}
                         </div>
                     ))}
