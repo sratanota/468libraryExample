@@ -12,7 +12,7 @@ return (
 <>
 <Hero />
 <FeaturedBooks books={books} sectionName="New Books" />
-<FeaturedBooks books={books} sectionName="Staff Picks" />
+<FeaturedBooks books={books} sectionName="Most Popular" />
 </>
 );
 }

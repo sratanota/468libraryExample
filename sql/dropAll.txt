@@ -1,0 +1,40 @@
+-- Patrons
+drop TABLE Patron CASCADE;
+
+-- Librarian
+drop TABLE Librarian CASCADE;
+
+-- Books (bibliographic)
+drop TABLE Book CASCADE;
+
+-- Book copies (physical)
+drop TABLE BookCopy CASCADE;
+
+-- Authors
+drop TABLE Author CASCADE;
+
+-- BookAuthor (M:N)
+drop TABLE BookAuthor ;
+
+-- Categories (tags)
+drop TABLE Category CASCADE ;
+
+-- BookCategory (M:N)
+drop TABLE BookCategory;
+
+-- Loans
+drop TABLE Loan ;
+
+-- Reservations (on bibliographic level)
+drop TABLE Reservation ;
+
+
+
+-- Inventory actions / audit
+drop TABLE InventoryAction ;
+
+-- Borrow stats (can be derived from Loan but stored for speed)
+drop TABLE BorrowStats ;
+
+drop TABLE PatronTypePolicy ;
+
