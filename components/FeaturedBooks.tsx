@@ -36,7 +36,7 @@ export default function FeaturedBooks({ books, sectionName }: { books: any[]; se
                     {Array.from({ length: totalPages }).map((_, pageIndex) => (
                         <div key={pageIndex} className="min-w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                             {books.slice(pageIndex * booksPerPage, (pageIndex + 1) * booksPerPage).map((b) => (
-                                <BookCard book={b.book} key={b.copyid} />
+                                <BookCard book={b} key={b.isbn} />
                             ))}
                         </div>
                     ))}

@@ -7,8 +7,10 @@ export async function GET(req:NextRequest){
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
 
-    const {data: newestBooks, error } = await supabase. from ('newest_bookcopies')
-        .select(`*`);
+    const {data: newestBooks, error } = await supabase. from ('borrowstats')
+        .select(`isbn,borrowcount, book(title, author(name))`)
+        .order("borrowcount", { ascending: false })
+        .limit(5);
 
     if (error){
         console.log("Error fetching newest book: ", error);

@@ -1,0 +1,364 @@
+BEGIN;
+
+-- ======================
+-- Librarians
+-- ======================
+INSERT INTO Librarian (LibrarianID, Name, Email) VALUES
+  (1, 'Somchai Siriwong', 'somchai.s@lib.example.edu'),
+  (2, 'Nathalie Ruiz', 'nathalie.r@lib.example.edu');
+
+-- ======================
+-- Categories (5)
+-- ======================
+INSERT INTO Category (CategoryID, Name) VALUES
+  (1, 'Fiction'),
+  (2, 'Science'),
+  (3, 'Technology'),
+  (4, 'History'),
+  (5, 'Art');
+
+-- ======================
+-- Authors (some well-known real authors)
+-- ======================
+INSERT INTO Author (AuthorID, Name) VALUES
+  (1, 'George Orwell'),
+  (2, 'Harper Lee'),
+  (3, 'F. Scott Fitzgerald'),
+  (4, 'Jane Austen'),
+  (5, 'J.D. Salinger'),
+  (6, 'Stephen Hawking'),
+  (7, 'Richard Dawkins'),
+  (8, 'Siddhartha Mukherjee'),
+  (9, 'Brian Greene'),
+  (10, 'Rachel Carson'),
+  (11, 'Robert C. Martin'),
+  (12, 'Erich Gamma'),
+  (13, 'Thomas H. Cormen'),
+  (14, 'Andrew Hunt'),
+  (15, 'Steve McConnell'),
+  (16, 'Jared Diamond'),
+  (17, 'Yuval Noah Harari'),
+  (18, 'Peter Frankopan'),
+  (19, 'Doris Kearns Goodwin'),
+  (20, 'William L. Shirer'),
+  (21, 'E. H. Gombrich'),
+  (22, 'John Berger'),
+  (23, 'Giorgio Vasari'),
+  (24, 'Josef Albers'),
+  (25, 'Ernst Gombrich'); -- duplicate-safe name if needed
+
+-- ======================
+-- Books (25 books; real titles + ISBNs)
+-- ======================
+INSERT INTO Book (ISBN, Title, Publisher, PubYear, Language) VALUES
+  -- Fiction (Category 1)
+  ('9780451524935', '1984', 'Signet Classics', 1950, 'English'),
+  ('9780061120084', 'To Kill a Mockingbird', 'Harper Perennial', 1960, 'English'),
+  ('9780743273565', 'The Great Gatsby', 'Scribner', 1925, 'English'),
+  ('9781503290563', 'Pride and Prejudice', 'CreateSpace', 1813, 'English'),
+  ('9780316769488', 'The Catcher in the Rye', 'Little, Brown', 1951, 'English'),
+
+  -- Science (Category 2)
+  ('9780553380163', 'A Brief History of Time', 'Bantam', 1988, 'English'),
+  ('9780192860927', 'The Selfish Gene', 'Oxford University Press', 1976, 'English'),
+  ('9780143127550', 'The Gene: An Intimate History', 'Scribner', 2016, 'English'),
+  ('9780393338102', 'The Elegant Universe', 'W. W. Norton', 1999, 'English'),
+  ('9780618249060', 'Silent Spring', 'Houghton Mifflin', 1962, 'English'),
+
+  -- Technology (Category 3)
+  ('9780132350884', 'Clean Code: A Handbook of Agile Software Craftsmanship', 'Prentice Hall', 2008, 'English'),
+  ('9780201633610', 'Design Patterns: Elements of Reusable Object-Oriented Software', 'Addison-Wesley', 1994, 'English'),
+  ('9780262033848', 'Introduction to Algorithms', 'MIT Press', 2009, 'English'),
+  ('9780135957059', 'The Pragmatic Programmer (20th Anniversary Edition)', 'Addison-Wesley', 2019, 'English'),
+  ('9780735619678', 'Code Complete', 'Microsoft Press', 2004, 'English'),
+
+  -- History (Category 4)
+  ('9780393317558', 'Guns, Germs, and Steel', 'W. W. Norton', 1997, 'English'),
+  ('9780062316097', 'Sapiens: A Brief History of Humankind', 'penguin', 2015, 'English'),
+  ('9781101912379', 'The Silk Roads: A New History of the World', 'Bloomsbury', 2015, 'English'),
+  ('9780743270755', 'Team of Rivals', 'Simon & Schuster', 2005, 'English'),
+  ('9781451651683', 'The Rise and Fall of the Third Reich', 'Simon & Schuster', 2014, 'English'),
+
+  -- Art (Category 5)
+  ('9780714832470', 'The Story of Art', 'Phaidon', 1995, 'English'),
+  ('9780141035796', 'Ways of Seeing', 'Penguin', 1972, 'English'),
+  ('9780192833470', 'Lives of the Artists', 'Oxford University Press', 1998, 'English'),
+  ('9780300179354', 'Interaction of Color', 'Yale University Press', 1963, 'English'),
+  ('9780140449136', 'The Letters of Vincent van Gogh', 'Penguin Classics', 2009, 'English');
+
+-- ======================
+-- BookAuthor relationships
+-- ======================
+-- Fiction
+INSERT INTO BookAuthor (ISBN, AuthorID) VALUES
+  ('9780451524935', 1), -- 1984 - George Orwell
+  ('9780061120084', 2), -- To Kill a Mockingbird - Harper Lee
+  ('9780743273565', 3), -- The Great Gatsby - F. Scott Fitzgerald
+  ('9781503290563', 4), -- Pride and Prejudice - Jane Austen
+  ('9780316769488', 5), -- The Catcher in the Rye - J.D. Salinger
+
+-- Science
+('9780553380163', 6) -- A Brief History of Time - Stephen Hawking
+, ('9780192860927', 7) -- The Selfish Gene - Richard Dawkins
+, ('9780143127550', 8) -- The Gene - Siddhartha Mukherjee
+, ('9780393338102', 9) -- The Elegant Universe - Brian Greene
+, ('9780618249060', 10) -- Silent Spring - Rachel Carson
+
+-- Technology
+, ('9780132350884', 11) -- Clean Code - Robert C. Martin
+, ('9780201633610', 12) -- Design Patterns - (Erich Gamma et al.)
+, ('9780262033848', 13) -- Introduction to Algorithms - Thomas H. Cormen et al.
+, ('9780135957059', 14) -- The Pragmatic Programmer - Andrew Hunt (co-author)
+, ('9780735619678', 15) -- Code Complete - Steve McConnell
+
+-- History
+, ('9780393317558', 16) -- Guns, Germs, and Steel - Jared Diamond
+, ('9780062316097', 17) -- Sapiens - Yuval Noah Harari
+, ('9781101912379', 18) -- The Silk Roads - Peter Frankopan
+, ('9780743270755', 19) -- Team of Rivals - Doris Kearns Goodwin
+, ('9781451651683', 20) -- The Rise and Fall of the Third Reich - William L. Shirer
+
+-- Art
+, ('9780714832470', 21) -- The Story of Art - E. H. Gombrich
+, ('9780141035796', 22) -- Ways of Seeing - John Berger
+, ('9780192833470', 23) -- Lives of the Artists - Giorgio Vasari
+, ('9780300179354', 24) -- Interaction of Color - Josef Albers
+, ('9780140449136', 25) -- The Letters of Vincent van Gogh - editor/translator (Penguin ed.)
+
+;
+
+-- ======================
+-- BookCategory relationships
+-- ======================
+-- Assign each book to its category
+INSERT INTO BookCategory (ISBN, CategoryID) VALUES
+  -- Fiction
+  ('9780451524935', 1),
+  ('9780061120084', 1),
+  ('9780743273565', 1),
+  ('9781503290563', 1),
+  ('9780316769488', 1),
+
+  -- Science
+  ('9780553380163', 2),
+  ('9780192860927', 2),
+  ('9780143127550', 2),
+  ('9780393338102', 2),
+  ('9780618249060', 2),
+
+  -- Technology
+  ('9780132350884', 3),
+  ('9780201633610', 3),
+  ('9780262033848', 3),
+  ('9780135957059', 3),
+  ('9780735619678', 3),
+
+  -- History
+  ('9780393317558', 4),
+  ('9780062316097', 4),
+  ('9781101912379', 4),
+  ('9780743270755', 4),
+  ('9781451651683', 4),
+
+  -- Art
+  ('9780714832470', 5),
+  ('9780141035796', 5),
+  ('9780192833470', 5),
+  ('9780300179354', 5),
+  ('9780140449136', 5)
+;
+
+-- ======================
+-- BookCopy (assign 2-4 copies per book with varied statuses)
+-- CopyID values start at 1001
+-- ======================
+-- For readability, grouped by ISBN
+INSERT INTO BookCopy (CopyID, ISBN, Barcode, AcquisitionDate, Condition, Location, Status) VALUES
+  -- 1984 (3 copies)
+  (1001, '9780451524935', 'BC1001', '2018-06-01', 'Good', 'Main Branch - A1', 'available'),
+  (1002, '9780451524935', 'BC1002', '2019-02-15', 'Fair', 'Main Branch - A1', 'on_loan'),
+  (1003, '9780451524935', 'BC1003', '2020-11-20', 'Good', 'Main Branch - Reference', 'reference'),
+
+  -- To Kill a Mockingbird (2 copies)
+  (1004, '9780061120084', 'BC1004', '2017-08-09', 'Good', 'Main Branch - A2', 'on_loan'),
+  (1005, '9780061120084', 'BC1005', '2021-03-01', 'New', 'Main Branch - A2', 'available'),
+
+  -- The Great Gatsby (3)
+  (1006, '9780743273565', 'BC1006', '2016-01-12', 'Fair', 'Main Branch - A3', 'on_loan'),
+  (1007, '9780743273565', 'BC1007', '2016-01-12', 'Good', 'Main Branch - A3', 'on_loan'),
+  (1008, '9780743273565', 'BC1008', '2016-01-12', 'Poor', 'Main Branch - Missing Shelf', 'missing'),
+
+  -- Pride and Prejudice (2)
+  (1009, '9781503290563', 'BC1009', '2015-05-21', 'Good', 'Main Branch - A4', 'available'),
+  (1010, '9781503290563', 'BC1010', '2018-07-17', 'Good', 'Main Branch - A4', 'reserved'),
+
+  -- The Catcher in the Rye (2)
+  (1011, '9780316769488', 'BC1011', '2014-10-05', 'Fair', 'Main Branch - A5', 'available'),
+  (1012, '9780316769488', 'BC1012', '2019-12-12', 'Good', 'Main Branch - A5', 'on_loan'),
+
+  -- A Brief History of Time (3)
+  (1013, '9780553380163', 'BC1013', '2010-02-10', 'Good', 'Science Section - S1', 'on_loan'),
+  (1014, '9780553380163', 'BC1014', '2012-08-20', 'Good', 'Science Section - S1', 'available'),
+  (1015, '9780553380163', 'BC1015', '2018-01-01', 'Poor', 'Science Section - S1', 'missing'),
+
+  -- The Selfish Gene (2)
+  (1016, '9780192860927', 'BC1016', '2011-04-14', 'Good', 'Science Section - S2', 'available'),
+  (1017, '9780192860927', 'BC1017', '2016-06-30', 'Good', 'Science Section - S2', 'on_loan'),
+
+  -- The Gene (3)
+  (1018, '9780143127550', 'BC1018', '2017-09-01', 'Good', 'Science Section - S3', 'available'),
+  (1019, '9780143127550', 'BC1019',  '2017-09-01', 'Good', 'Science Section - S3', 'reference'),
+  (1020, '9780143127550', 'BC1020', '2020-09-15', 'Good', 'Science Section - S3', 'available'),
+
+  -- The Elegant Universe (2)
+  (1021, '9780393338102', 'BC1021', '2001-05-22', 'Good', 'Science Section - S4', 'on_loan'),
+  (1022, '9780393338102', 'BC1022', '2005-03-12', 'Fair', 'Science Section - S4', 'available'),
+
+  -- Silent Spring (2)
+  (1023, '9780618249060', 'BC1023', '2008-04-10', 'Good', 'Science Section - S5', 'available'),
+  (1024, '9780618249060', 'BC1024', '2019-11-11', 'Poor', 'Science Section - S5', 'missing'),
+
+  -- Clean Code (3)
+  (1025, '9780132350884', 'BC1025', '2013-05-05', 'Good', 'Tech - T1', 'on_loan'),
+  (1026, '9780132350884', 'BC1026', '2014-06-15', 'Good', 'Tech - T1', 'available'),
+  (1027, '9780132350884', 'BC1027', '2018-10-10', 'Good', 'Tech - T1', 'available'),
+
+  -- Design Patterns (2)
+  (1028, '9780201633610', 'BC1028', '2000-02-18', 'Fair', 'Tech - T2', 'available'),
+  (1029, '9780201633610', 'BC1029', '2000-02-18', 'Good', 'Tech - T2', 'on_loan'),
+
+  -- Introduction to Algorithms (2)
+  (1030, '9780262033848', 'BC1030', '2009-09-01', 'Good', 'Tech - T3', 'on_loan'),
+  (1031, '9780262033848', 'BC1031', '2012-12-12', 'Good', 'Tech - T3', 'available'),
+
+  -- Pragmatic Programmer (2)
+  (1032, '9780135957059', 'BC1032', '2020-03-03', 'New', 'Tech - T4', 'available'),
+  (1033, '9780135957059', 'BC1033', '2020-03-03', 'New', 'Tech - T4', 'available'),
+
+  -- Code Complete (2)
+  (1034, '9780735619678', 'BC1034', '2005-11-20', 'Good', 'Tech - T5', 'on_loan'),
+  (1035, '9780735619678', 'BC1035', '2005-11-20', 'Fair', 'Tech - T5', 'available'),
+
+  -- Guns, Germs, and Steel (2)
+  (1036, '9780393317558', 'BC1036', '2003-07-07', 'Good', 'History - H1', 'available'),
+  (1037, '9780393317558', 'BC1037', '2003-07-07', 'Fair', 'History - H1', 'on_loan'),
+
+  -- Sapiens (3)
+  (1038, '9780062316097', 'BC1038', '2016-01-10', 'New', 'History - H2', 'on_loan'),
+  (1039, '9780062316097', 'BC1039', '2016-01-10', 'New', 'History - H2', 'on_loan'),
+  (1040, '9780062316097', 'BC1040', '2016-01-10', 'New', 'History - H2', 'available'),
+
+  -- The Silk Roads (2)
+  (1041, '9781101912379', 'BC1041', '2015-10-01', 'Good', 'History - H3', 'available'),
+  (1042, '9781101912379', 'BC1042',  '2015-10-01', 'Good', 'History - H3', 'reference'),
+
+  -- Team of Rivals (2)
+  (1043, '9780743270755', 'BC1043', '2006-02-14', 'Good', 'History - H4', 'available'),
+  (1044, '9780743270755', 'BC1044',  '2006-02-14', 'Fair', 'History - H4', 'on_loan'),
+
+  -- Rise and Fall of the Third Reich (2)
+  (1045, '9781451651683', 'BC1045', '2014-11-11', 'Good', 'History - H5', 'available'),
+  (1046, '9781451651683', 'BC1046',  '2014-11-11', 'Fair', 'History - H5', 'missing'),
+
+  -- The Story of Art (2)
+  (1047, '9780714832470', 'BC1047', '1996-05-05', 'Good', 'Art - R1', 'available'),
+  (1048, '9780714832470', 'BC1048', '1996-05-05', 'Good', 'Art - R1', 'on_loan'),
+
+  -- Ways of Seeing (2)
+  (1049, '9780141035796', 'BC1049', '2008-09-09', 'Good', 'Art - R2', 'available'),
+  (1050, '9780141035796', 'BC1050',  '2008-09-09', 'Fair', 'Art - R2', 'available'),
+
+  -- Lives of the Artists (2)
+  (1051, '9780192833470', 'BC1051', '1998-03-03', 'Good', 'Art - R3', 'available'),
+  (1052, '9780192833470', 'BC1052',  '1998-03-03', 'Good', 'Art - R3', 'available'),
+
+  -- Interaction of Color (2)
+  (1053, '9780300179354', 'BC1053', '2001-06-06', 'Good', 'Art - R4', 'reference'),
+  (1054, '9780300179354', 'BC1054', '2001-06-06', 'Good', 'Art - R4', 'available'),
+
+  -- The Letters of Vincent van Gogh (2)
+  (1055, '9780140449136', 'BC1055', '2009-07-07', 'Good', 'Art - R5', 'available'),
+  (1056, '9780140449136', 'BC1056',  '2009-07-07', 'Good', 'Art - R5', 'on_loan')
+;
+
+-- ======================
+-- Patrons (10 patrons across student, staff, public)
+-- ======================
+INSERT INTO Patron (PatronID, Name, PatronType, Email, Phone, Address, MembershipStart, MembershipEnd, Status) VALUES
+  (201, 'Anucha Phong', 'student', 'anucha.p@student.example.edu', '+66-2-111-0001', 'Bangkok, Thailand', '2024-08-01', '2026-08-01', 'active'),
+  (202, 'Maya Singh', 'student', 'maya.s@student.example.edu', '+66-2-111-0002', 'Bangkok, Thailand', '2023-09-01', '2025-09-01', 'active'),
+  (203, 'Dr. Paul Richardson', 'staff', 'paul.r@univ.example.edu', '+66-2-111-0003', 'Bangkok, Thailand', '2020-01-01', '2030-01-01', 'active'),
+  (204, 'Somsri K.', 'staff', 'somsri.k@univ.example.edu', '+66-2-111-0004', 'Bangkok, Thailand', '2019-02-01', '2029-02-01', 'active'),
+  (205, 'Nattapong Lee', 'public', 'nattapong.l@example.com', '+66-2-111-0005', 'Nonthaburi, Thailand', '2022-05-10', '2026-05-10', 'active'),
+  (206, 'Jane Doe', 'public', 'jane.d@example.com', '+66-2-111-0006', 'Bangkok, Thailand', '2024-01-01', '2024-12-31', 'inactive'),
+  (207, 'Krit Phrom', 'student', 'krit.p@student.example.edu', '+66-2-111-0007', 'Bangkok, Thailand', '2024-08-15', '2026-08-15', 'active'),
+  (208, 'Pawitra Chai', 'public', 'pawitra.c@example.com', '+66-2-111-0008', 'Pathum Thani, Thailand', '2023-03-21', '2026-03-21', 'active'),
+  (209, 'Assoc. Prof. Ratan', 'staff', 'ratan@univ.example.edu', '+66-2-111-0009', 'Bangkok, Thailand', '2015-07-01', '2025-07-01', 'inactive'),
+  (210, 'Somyot Bun', 'student', 'somyot.b@student.example.edu', '+66-2-111-0010', 'Bangkok, Thailand', '2024-09-01', '2025-09-01', 'active');
+
+-- ======================
+-- Loans (some active, some returned, some overdue)
+-- ======================
+-- Use LoanID starting at 5001
+INSERT INTO Loan (LoanID, CopyID, PatronID, BorrowDate, DueDate, ReturnDate, RenewCount, FineAmount) VALUES
+  -- Active loans (ReturnDate IS NULL)
+  (5001, 1002, 201, '2025-10-01', '2025-10-15', NULL, 0, 0.00), -- 1984 copy on loan
+  (5002, 1004, 202, '2025-09-20', '2025-10-04', NULL, 1, 0.00), -- To Kill a Mockingbird
+  (5003, 1006, 203, '2025-09-28', '2025-10-12', NULL, 0, 0.00), -- Great Gatsby
+  (5004, 1013, 204, '2025-09-01', '2025-09-21', NULL, 2, 5.00), -- A Brief History of Time (overdue active with accumulated fine)
+  (5005, 1021, 205, '2025-10-10', '2025-10-24', NULL, 0, 0.00), -- Elegant Universe (due today)
+  (5006, 1030, 206, '2025-10-05', '2025-10-19', NULL, 0, 0.00), -- Introduction to Algorithms
+
+  -- Returned loans (with ReturnDate)
+  (5007, 1012, 207, '2025-08-01', '2025-08-15', '2025-08-16', 0, 1.00), -- The Catcher in the Rye (1 day late)
+  (5008, 1034, 208, '2025-07-10', '2025-07-24', '2025-07-24', 0, 0.00), -- Code Complete (returned on time)
+  (5009, 1037, 209, '2025-06-01', '2025-06-15', '2025-07-01', 0, 15.00), -- Guns, Germs, and Steel (returned late)
+  (5010, 1048, 210, '2025-09-01', '2025-09-15', '2025-09-15', 0, 0.00) -- The Story of Art (returned on time)
+;
+
+-- ======================
+-- Update BookCopy status to reflect loans (ensure consistency)
+-- ======================
+UPDATE BookCopy SET Status = 'on_loan' WHERE CopyID IN (1002,1004,1006,1013,1021,1030,1012,1034,1037,1048);
+
+-- ======================
+-- Reservations (for books where all copies are lent out)
+-- ======================
+-- Example: Make reservations for 'Sapiens' where copies 1038 & 1039 are on_loan (both on_loan above)
+INSERT INTO Reservation (ReservationID, ISBN, PatronID, RequestDate, Status, QueuePosition) VALUES
+  (7001, '9780062316097', 205, '2025-10-05 09:12:00', 'waiting', 1),
+  (7002, '9780062316097', 206, '2025-10-06 10:30:00', 'waiting', 2),
+
+  -- Reservation for The Great Gatsby (if all available copies are on_loan or missing)
+  (7003, '9780743273565', 207, '2025-10-02 14:00:00', 'waiting', 1),
+
+  -- Reservation for A Brief History of Time (1013 on_loan, 1014 available but 1015 missing; still create wait example)
+  (7004, '9780553380163', 208, '2025-09-05 08:00:00', 'waiting', 1),
+
+  -- Reservation for Clean Code when principal copy is on_loan
+  (7005, '9780132350884', 209, '2025-10-04 11:11:00', 'waiting', 1)
+;
+
+-- ======================
+-- InventoryAction (sample actions)
+-- ======================
+INSERT INTO InventoryAction (ActionID, CopyID, LibrarianID, ActionType, ActionDate, Notes) VALUES
+  (9001, 1001, 1, 'acquisition', '2018-06-01 10:00:00', 'Initial acquisition'),
+  (9002, 1008, 1, 'disposal', '2023-02-01 09:00:00', 'Reported missing during inventory'),
+  (9003, 1015, 2, 'move', '2021-11-11 11:00:00', 'Moved to offsite storage (poor condition)'),
+  (9004, 1026, 2, 'repair', '2024-05-15 14:30:00', 'Repaired binding'),
+  (9005, 1046, 1, 'disposal', '2024-12-01 10:00:00', 'Book too damaged, removed')
+;
+
+-- ======================
+-- BorrowStats (seed values)
+-- ======================
+INSERT INTO BorrowStats (ISBN, YearMonth, BorrowCount) VALUES
+  ('9780451524935', '2025-09', 12),
+  ('9780061120084', '2025-09', 8),
+  ('9780132350884', '2025-09', 5),
+  ('9780062316097', '2025-09', 9),
+  ('9780553380163', '2025-09', 6)
+;
+
+COMMIT;

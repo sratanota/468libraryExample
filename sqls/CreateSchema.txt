@@ -1,0 +1,180 @@
+
+
+-- Patrons
+CREATE TABLE Patron (
+  PatronID        BIGINT PRIMARY KEY,
+  Name            VARCHAR(200) NOT NULL,
+  PatronType      VARCHAR(20) NOT NULL,
+  Email           VARCHAR(255),
+  Phone           VARCHAR(32),
+  Address         TEXT,
+  MembershipStart DATE,
+  MembershipEnd   DATE,
+  Status          VARCHAR(20)
+);
+ALTER TABLE Patron ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON Patron
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- Librarians
+CREATE TABLE Librarian (
+  LibrarianID     BIGINT PRIMARY KEY,
+  Name            VARCHAR(200) NOT NULL,
+  Email           VARCHAR(255)
+);
+ALTER TABLE Librarian ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON Librarian
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- Books
+CREATE TABLE Book (
+  ISBN            VARCHAR(20) PRIMARY KEY,
+  Title           VARCHAR(500) NOT NULL,
+  Publisher       VARCHAR(255),
+  PubYear         INT,
+  Language        VARCHAR(50)
+);
+ALTER TABLE Book ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON Book
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- Book copies
+CREATE TABLE BookCopy (
+  CopyID          BIGINT PRIMARY KEY,
+  ISBN            VARCHAR(20) NOT NULL REFERENCES Book(ISBN),
+  Barcode         VARCHAR(100) UNIQUE,
+  AcquisitionDate DATE,
+  Condition       VARCHAR(50),
+  Location        VARCHAR(100),
+  Status          VARCHAR(20)
+);
+ALTER TABLE BookCopy ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON BookCopy
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- Authors
+CREATE TABLE Author (
+  AuthorID        BIGINT PRIMARY KEY,
+  Name            VARCHAR(255) NOT NULL
+);
+ALTER TABLE Author ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON Author
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- BookAuthor
+CREATE TABLE BookAuthor (
+  ISBN      VARCHAR(20) NOT NULL REFERENCES Book(ISBN),
+  AuthorID  BIGINT NOT NULL REFERENCES Author(AuthorID),
+  PRIMARY KEY (ISBN, AuthorID)
+);
+ALTER TABLE BookAuthor ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON BookAuthor
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- Categories
+CREATE TABLE Category (
+  CategoryID      BIGINT PRIMARY KEY,
+  Name            VARCHAR(100) UNIQUE NOT NULL
+);
+ALTER TABLE Category ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON Category
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- BookCategory
+CREATE TABLE BookCategory (
+  ISBN        VARCHAR(20) NOT NULL REFERENCES Book(ISBN),
+  CategoryID  BIGINT NOT NULL REFERENCES Category(CategoryID),
+  PRIMARY KEY (ISBN, CategoryID)
+);
+ALTER TABLE BookCategory ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON BookCategory
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- Loans
+CREATE TABLE Loan (
+  LoanID        BIGINT PRIMARY KEY,
+  CopyID        BIGINT NOT NULL REFERENCES BookCopy(CopyID),
+  PatronID      BIGINT NOT NULL REFERENCES Patron(PatronID),
+  BorrowDate    DATE NOT NULL,
+  DueDate       DATE NOT NULL,
+  ReturnDate    DATE,
+  RenewCount    INT DEFAULT 0,
+  FineAmount    DECIMAL(10,2) DEFAULT 0.00
+);
+ALTER TABLE Loan ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON Loan
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- Reservations
+CREATE TABLE Reservation (
+  ReservationID BIGINT PRIMARY KEY,
+  ISBN          VARCHAR(20) NOT NULL REFERENCES Book(ISBN),
+  PatronID      BIGINT NOT NULL REFERENCES Patron(PatronID),
+  RequestDate   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  Status        VARCHAR(20) DEFAULT 'waiting',
+  QueuePosition INT
+);
+ALTER TABLE Reservation ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON Reservation
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- InventoryAction
+CREATE TABLE InventoryAction (
+  ActionID     BIGINT PRIMARY KEY,
+  CopyID       BIGINT REFERENCES BookCopy(CopyID),
+  LibrarianID  BIGINT REFERENCES Librarian(LibrarianID),
+  ActionType   VARCHAR(50),
+  ActionDate   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  Notes        TEXT
+);
+ALTER TABLE InventoryAction ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON InventoryAction
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- BorrowStats
+CREATE TABLE BorrowStats (
+  ISBN       VARCHAR(20) NOT NULL REFERENCES Book(ISBN),
+  YearMonth  CHAR(7) NOT NULL,
+  BorrowCount INT DEFAULT 0,
+  PRIMARY KEY (ISBN, YearMonth)
+);
+ALTER TABLE BorrowStats ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON BorrowStats
+  FOR SELECT
+  TO anon
+  USING (true);
+
+-- PatronTypePolicy
+CREATE TABLE PatronTypePolicy (
+  PatronType VARCHAR(20) PRIMARY KEY,
+  MaxLoans INT NOT NULL,
+  LoanPeriodDays INT NOT NULL,
+  FinePerDay DECIMAL(10,2) NOT NULL
+);
+ALTER TABLE PatronTypePolicy ENABLE ROW LEVEL SECURITY;
+CREATE POLICY anon_read_policy ON PatronTypePolicy
+  FOR SELECT
+  TO anon
+  USING (true);
