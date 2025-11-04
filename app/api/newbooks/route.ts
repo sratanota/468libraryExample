@@ -5,12 +5,11 @@ import { cookies } from "next/headers";
 
 export async function GET(req:NextRequest){
     const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
 
-    const {data: newestBooks, error } = await supabase. from ('bookcopy')
-        .select(`copyid,acquisitiondate , book ( isbn, title, publisher, pubyear, author (name))`)
-        .order('acquisitiondate', {ascending:false})
-        .limit(5);
+      const supabase = createClient(cookieStore);
+        const {data: newestBooks, error } = await supabase. from ('newest_bookcopies')
+            .select(`*`);
+
     if (error){
         console.log("Error fetching newest book: ", error);
         return NextResponse.json({error: error.message}, {status:500});

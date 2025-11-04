@@ -2,17 +2,25 @@ import React from 'react';
 import Hero from '../components/Hero';
 import FeaturedBooks from '../components/FeaturedBooks';
 import StaffList from '../components/StaffList';
-import { getFeaturedBooks, getStaff } from '../lib/books';
+import { cookies } from 'next/headers';
+import { createClient } from '../lib/supabase/server';
 
 
-export default function Home() {
-const books = getFeaturedBooks();
-const staff = getStaff();
-return (
-<>
-<Hero />
-<FeaturedBooks books={books} sectionName="New Books" />
-<FeaturedBooks books={books} sectionName="Staff Picks" />
-</>
-);
+export default async function Home() {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+    const {data: newestBooks, error } = await supabase. from ('bookcopy')
+        .select(`copyid,acquisitiondate , book ( isbn, title, publisher, pubyear, author (name))`)
+        .order('acquisitiondate', {ascending:false})
+        .limit(5);
+    if (error){
+        console.log("Error fetching newest book: ", error);
+    }
+
+  return (
+    <>
+      <Hero />
+      <FeaturedBooks books={newestBooks} sectionName="New Books" />
+    </>
+  );
 }
