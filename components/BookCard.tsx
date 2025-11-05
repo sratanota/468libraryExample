@@ -6,7 +6,7 @@ export default function BookCard({ book }: { book: any }) {
 
 return (
 <article className="border rounded-lg overflow-hidden bg-white">
-<img src={book.cover} alt={book.title} className="h-44 w-full object-cover" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/5/51/1984_first_edition_cover.jpg" alt={book.title} className="h-44 w-full object-cover" />
 <div className="p-3">
 <h3 className="font-semibold">{book.title}</h3>
 <p className="text-sm text-gray-600"> {book.authors} </p>

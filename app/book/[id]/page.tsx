@@ -30,7 +30,7 @@ export default async function BookPage({ params }: { params: { id: string } }) {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-                <div className="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500 font-semibold">No Cover</div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/1984_first_edition_cover.jpg" alt={book.title} className="w-[400px] object-contain mx-auto block"/>
                 <div className="p-6 flex-grow">
                     <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
                     <p className="text-lg text-gray-700 mb-4">by {authorList}</p>
