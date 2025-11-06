@@ -21,7 +21,7 @@ export default async function Home() {
     }
 
     const {data: popBook, error:error2} = await supabase.from('borrowstats')
-    .select(`isbn, borrowcount, book(title, author(name))`)
+    .select(`isbn, borrowcount, book(title, cover, author(name))`)
     .order("borrowcount", {ascending:false})
     .limit(6);
     if (error2){
@@ -30,7 +30,7 @@ export default async function Home() {
     const popularBooks = popBook.map((b)=>{
         let book:any = b.book;
         let names = book.author.map(a=>a.name).join(", ");
-        return {isbn:b.isbn, title:book.title, authors:names};
+        return {isbn:b.isbn, title:book.title, cover:book.cover, authors:names};
     });
 
 return (

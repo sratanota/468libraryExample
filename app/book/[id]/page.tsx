@@ -24,6 +24,8 @@ export default async function BookPage({ params }: Props) {
 if (!book) return <div className="container py-12">Book not found</div>;
 
 const aBook = book[0];
+const authorList = aBook.author.map((aut:any)=>aut.name).join(", ");
+console.log (aBook.cover);
 return (
 <section className="container py-12 grid md:grid-cols-3 gap-8">
 <img src={aBook.cover} alt={aBook.title} className="w-full h-auto" />
@@ -32,6 +34,7 @@ return (
 
 <p className="text-gray-700 mt-4">{aBook.publisher}</p>
 <p className="text-gray-700 mt-4">{aBook.pubyear}</p>
+<p className="text-gray-700 mt-4">{authorList}</p>
 
 </div>
 </section>
