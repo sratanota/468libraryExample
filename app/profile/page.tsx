@@ -23,6 +23,10 @@ export default async function Profile() {
     return redirect(`/error?message=${patronError.message}`);
   }
 
+  if (!patron) {
+    return redirect('/error?message=Profile is only for patrons');
+  }
+
   const updateProfile = async (formData: FormData) => {
     'use server';
 
