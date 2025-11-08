@@ -1,14 +1,139 @@
-import React from 'react';
+
+import { revalidatePath } from "next/cache";
+import { createClient } from "../../lib/supabase/server";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 
-export default function Profile() {
-const user = { name: 'Student User', email: 'student@kmutt.ac.th' };
-return (
-<section className="container py-12">
-<div className="bg-white p-6 rounded-md">
-<h2 className="text-xl font-bold">{user.name}</h2>
-<p className="text-sm text-gray-600">{user.email}</p>
-</div>
-</section>
-);
+export default async function Profile() {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const { data: patron, error: patronError } = await supabase.from('patron')
+        .select('*').eq('userid', user.id).single();
+
+    if (patronError && patronError.code != 'PGRST116') {
+        return redirect(`/error?message=${patronError.message}`);
+    }
+    if (!patron) {
+        return redirect(`/error?message=Profile is only for patrons`);
+    }
+    let url="";
+    if (patron.avatar_url){
+        const {data, error} = await supabase.storage.from('profimg').createSignedUrl(patron.avatar_url, 60*60);
+        url = data?.signedUrl;
+        if (error){
+            console.error('Error downloading the image', error.message);
+        }
+
+    }
+
+    const updateProfile = async (formData: FormData) => {
+        'use server'
+
+        const name = formData.get('name') as string;
+        const phone = formData.get('phone') as string;
+        const address = formData.get('address') as string;
+        const avartarFile = formData.get('avartar') as File;
+
+        const cookieStore = await cookies();
+        const supabase = createClient(cookieStore);
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return redirect('/login');
+
+        const {data:existPatron, error:existPatronError} = await supabase.from ('patron')
+        .select('*').eq('userid', user.id).single();
+        if (existPatronError || !existPatron){
+            return redirect(`/error?message=Patron not found`);
+        }
+
+        let avatar_url = existPatron.avartar_url;
+        if (avartarFile && avartarFile.size > 0){
+            console.log("uploading file");
+            const fileName = avartarFile.name;
+            const extension = fileName.split('.').pop()?.toLowerCase() || '';
+            const filePath = `${user.id}.${extension}`;
+            const {error: uploadError} = await supabase.storage.from ('profimg')
+            .upload(filePath, avartarFile, {upsert:true});
+
+            if (uploadError){
+                return redirect(`/error?message=Image upload failed: ${uploadError.message}`);
+            }
+            avatar_url = filePath;
+        }
+
+        const {error: updateError} = await supabase.from ('patron')
+        .update({name, phone,address,avatar_url})
+        .eq('userid', user.id);
+
+        if(updateError){
+            return redirect(`/error?message=${updateError.message}`);
+        }
+        revalidatePath('/profile');
+        return redirect('/profile/success');
+
+    }
+
+    return (
+        <section className="container py-12">
+            <div className="bg-white p-6 rounded-md max-w-wd mx-auto">
+                <h2 className="text-xl font-bold">Profile</h2>
+                <form>
+                    <div className="flex item-center space-x-4 mb-6">
+                        <img src={url||'/assets/noImg.png'} alt="profile pic" 
+                        className="w-20 h-20 rounded-full object-cover" />
+                        <div>
+                            <label htmlFor="avatar" className="block text-sm font-medium text-grey-700">New Profile Picture</label>
+                            <input type="file" id="avartar" name="avartar" accept="image/*" 
+                            className="mt-1 block w-full text-sm text-gray-500 file:py-2 file:mr-4 file:rounded-full 
+                            file:border-0 file:text-sm file:font-semibold file:bg-ddct-orange file:text-white 
+                            hover:file:bg-ddct-orange/80"/>
+                        </div>
+                    </div>
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-grey-700">Email</label>
+                        <input type="email" id="email" name="email" value={patron?.email || ''} disabled
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm bg-gray-100" />
+                    </div>
+                    <div className="mt-4">
+                        <label htmlFor="email" className="block text-sm font-medium text-grey-700">Name</label>
+                        <input type="text" id="name" name="name" defaultValue={patron?.name || ''}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm " required />
+                    </div>
+                    <div className="mt-4">
+                        <label htmlFor="phone" className="block text-sm font-medium text-grey-700">Phone No.</label>
+                        <input type="text" id="phone" name="phone" defaultValue={patron?.phone || ''}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm " />
+                    </div>
+                    <div className="mt-4">
+                        <label htmlFor="address" className="block text-sm font-medium text-grey-700">Address</label>
+                        <textarea id="address" name="address" defaultValue={patron?.address || ''}
+                            rows={3}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm " />
+                    </div>
+                    <div className="mt-4">
+                        <label htmlFor="patrontype" className="block text-sm font-medium text-grey-700">Patron Type</label>
+                        <input type="text" id="patrontype" name="patrontype" value={patron?.patrontype || ''} disabled
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm " />
+                    </div>
+                    <div className="mt-4">
+                        <label htmlFor="membershipstart" className="block text-sm font-medium text-grey-700">Membership Start</label>
+                        <input type="date" id="membershipstart" name="membershipstart" value={patron?.membershipstart || ''} disabled
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm " />
+                    </div>
+                    <div className="mt-4">
+                        <label htmlFor="membershipend" className="block text-sm font-medium text-grey-700">Membership End</label>
+                        <input type="date" id="membershipend" name="membershipend" value={patron?.membershipend || ''} disabled
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm " />
+                    </div>
+                    <div className="mt-6">
+                        <button formAction={updateProfile} className="w-full bg-ddct-orange text-white py-2 px-4 rounded"> Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    );
 }
