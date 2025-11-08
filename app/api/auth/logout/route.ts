@@ -20,6 +20,6 @@
 
   revalidatePath('/', 'layout')
  
-  return NextResponse.json({status:200});
+  return NextResponse.redirect(new URL('/', req.url));
 
 }

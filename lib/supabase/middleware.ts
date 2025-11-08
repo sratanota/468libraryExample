@@ -36,19 +36,23 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  
+
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth")
+    //!request.nextUrl.pathname.startsWith("/login") &&
+    //!request.nextUrl.pathname.startsWith("/auth") && 
+    //!request.nextUrl.pathname.startsWith("/error")
+    (request.nextUrl.pathname.startsWith("/profile") ||
+      request.nextUrl.pathname.startsWith("/libralian"))
+    // Only redirect if on these paths  
   ) {
     // no user, potentially respond by redirecting the user to the login 
     console.log("no user. will kick to login")
     const url = request.nextUrl.clone()
     url.pathname = "/login"
     return NextResponse.redirect(url)
-  }else{
-    console.log ("Found user");
+  } else {
+    console.log("Found user");
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
