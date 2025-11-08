@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
 import LibrarianLogin from '../../components/LibrarianLogin';
+import AddBookForm from '../../components/AddBookForm';
 
 async function addBookAction(formData: FormData) {
     'use server';
@@ -18,14 +19,11 @@ async function addBookAction(formData: FormData) {
 
     // Handle file upload
     if (coverFile && coverFile.size > 0) {
-
-      const extension = coverFile.name.split('.').pop()?.toLowerCase() || ''
-      const filePath = `${isbn}.${extension}`;
-      const { error: uploadError } = await supabase.storage
-        .from('bookimage')
-        .upload(filePath, coverFile, {
-          upsert: true
-        });
+        const extension = coverFile.name.split('.').pop()?.toLowerCase() || '';
+        const filePath = `${isbn}.${extension}`;
+        const { error: uploadError } = await supabase.storage
+            .from('bookimage')
+            .upload(filePath, coverFile, { upsert: true });
 
         if (uploadError) {
             return redirect(`/error?message=Cover image upload failed: ${uploadError.message}`);
@@ -47,11 +45,61 @@ async function addBookAction(formData: FormData) {
         cover: coverUrl,
     };
 
-    // First, upsert the book. If it exists, it will be updated. If not, created.
     const { error: bookError } = await supabase.from('book').upsert(bookData, { onConflict: 'isbn' });
 
     if (bookError) {
         return redirect(`/error?message=Failed to add book: ${bookError.message}`);
+    }
+
+    // Handle Authors
+    const authors = JSON.parse(formData.get('authors') as string);
+    const authorIds: number[] = [];
+
+    for (const author of authors) {
+        if (author.name) {
+            // Check if author exists
+            let { data: existingAuthor, error: selectError } = await supabase
+                .from('author')
+                .select('authorid')
+                .eq('name', author.name)
+                .single();
+
+            if (selectError && selectError.code !== 'PGRST116') { // PGRST116: no rows found
+                return redirect(`/error?message=Error checking for author: ${selectError.message}`);
+            }
+
+            if (existingAuthor) {
+                authorIds.push(existingAuthor.authorid);
+            } else {
+                // Create new author
+                const { data: newAuthor, error: insertError } = await supabase
+                    .from('author')
+                    .insert({ name: author.name })
+                    .select('authorid')
+                    .single();
+
+                if (insertError) {
+                    return redirect(`/error?message=Failed to create author: ${insertError.message}`);
+                }
+                if (newAuthor) {
+                    authorIds.push(newAuthor.authorid);
+                }
+            }
+        }
+    }
+
+    // Link authors to book
+    if (authorIds.length > 0) {
+        const bookAuthorLinks = authorIds.map(authorid => ({
+            isbn: bookData.isbn,
+            authorid: authorid,
+        }));
+
+        const { error: bookAuthorError } = await supabase.from('bookauthor').insert(bookAuthorLinks);
+
+        if (bookAuthorError) {
+            return redirect(`/error?message=Failed to link authors to book: ${bookAuthorError.message}`);
+        }
     }
 
     const copyData = {
@@ -63,7 +111,6 @@ async function addBookAction(formData: FormData) {
         status: 'Available',
     };
 
-    // Then, insert the new book copy.
     const { error: copyError } = await supabase.from('bookcopy').insert(copyData);
 
     if (copyError) {
@@ -84,15 +131,20 @@ export default async function AddBooksPage({ searchParams }: { searchParams: { s
         return <LibrarianLogin />;
     }
 
-    const { data: librarian, error } = await supabase
+    const { data: librarian, error: librarianError } = await supabase
         .from('librarian')
         .select('librarianid')
         .eq('user_id', user.id)
         .single();
 
-    if (error || !librarian) {
-        console.log("Get Librarian error",error);
+    if (librarianError || !librarian) {
         return redirect('/error?message=Access Denied: You must be a librarian to access this page.');
+    }
+
+    const { data: allAuthors, error: authorsError } = await supabase.from('author').select('authorid, name');
+
+    if (authorsError) {
+        return redirect(`/error?message=Could not fetch authors: ${authorsError.message}`);
     }
 
     const success = searchParams?.success === 'true';
@@ -107,65 +159,7 @@ export default async function AddBooksPage({ searchParams }: { searchParams: { s
                     </div>
                 )}
                 <form action={addBookAction} className="space-y-6">
-                    {/* Book Details */}
-                    <div className="p-4 border rounded-md">
-                        <h2 className="text-xl font-semibold mb-4">Book Details</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="isbn" className="block text-sm font-medium text-gray-700">ISBN</label>
-                                <input type="text" id="isbn" name="isbn" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
-                            </div>
-                            <div>
-                                <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
-                                <input type="text" id="title" name="title" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
-                            </div>
-                            <div>
-                                <label htmlFor="publisher" className="block text-sm font-medium text-gray-700">Publisher</label>
-                                <input type="text" id="publisher" name="publisher" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="pubyear" className="block text-sm font-medium text-gray-700">Publication Year</label>
-                                <input type="number" id="pubyear" name="pubyear" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="language" className="block text-sm font-medium text-gray-700">Language</label>
-                                <input type="text" id="language" name="language" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="cover" className="block text-sm font-medium text-gray-700">Cover Image</label>
-                                <input type="file" id="cover" name="cover" accept="image/*" className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-ddct-orange file:text-white hover:file:bg-ddct-orange/80"/>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Book Copy Details */}
-                    <div className="p-4 border rounded-md">
-                        <h2 className="text-xl font-semibold mb-4">Book Copy Details</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="barcode" className="block text-sm font-medium text-gray-700">Barcode</label>
-                                <input type="text" id="barcode" name="barcode" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
-                            </div>
-                            <div>
-                                <label htmlFor="acquisitiondate" className="block text-sm font-medium text-gray-700">Acquisition Date</label>
-                                <input type="date" id="acquisitiondate" name="acquisitiondate" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="condition" className="block text-sm font-medium text-gray-700">Condition</label>
-                                <input type="text" id="condition" name="condition" defaultValue="Good" disabled className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
-                                <input type="text" id="location" name="location" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <div>
-                                <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
-                                <input type="text" id="status" name="status"  defaultValue="Available" disabled className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="submit" className="w-full bg-ddct-orange text-white py-3 px-4 rounded-md hover:bg-ddct-orange/90 font-semibold">Add Book and Copy</button>
+                    <AddBookForm allAuthors={allAuthors || []} />
                 </form>
             </div>
         </section>

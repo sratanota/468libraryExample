@@ -19,7 +19,6 @@ function SubmitButton() {
 
 export default function AddBookForm({ allAuthors }: { allAuthors: Author[] }) {
     const [authors, setAuthors] = useState<{ name: string }[]>([{ name: '' }]);
-    // Removed: const [pending,setPending] = useState<boolean>(false);
 
     const handleAuthorChange = (index: number, value: string) => {
         const newAuthors = [...authors];
