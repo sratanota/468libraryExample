@@ -18,17 +18,21 @@ async function addBookAction(formData: FormData) {
 
     // Handle file upload
     if (coverFile && coverFile.size > 0) {
-        const filePath = `${isbn}/${Date.now()}-${coverFile.name}`;
-        const { error: uploadError } = await supabase.storage
-            .from('book-covers')
-            .upload(filePath, coverFile);
+
+      const extension = coverFile.name.split('.').pop()?.toLowerCase() || ''
+      const filePath = `${isbn}.${extension}`;
+      const { error: uploadError } = await supabase.storage
+        .from('bookimage')
+        .upload(filePath, coverFile, {
+          upsert: true
+        });
 
         if (uploadError) {
             return redirect(`/error?message=Cover image upload failed: ${uploadError.message}`);
         }
 
         const { data: { publicUrl } } = supabase.storage
-            .from('book-covers')
+            .from('bookimage')
             .getPublicUrl(filePath);
         
         coverUrl = publicUrl;
@@ -54,9 +58,9 @@ async function addBookAction(formData: FormData) {
         isbn: bookData.isbn,
         barcode: formData.get('barcode') as string,
         acquisitiondate: formData.get('acquisitiondate') as string || new Date().toISOString(),
-        condition: formData.get('condition') as string,
+        condition: 'Good',
         location: formData.get('location') as string,
-        status: formData.get('status') as string,
+        status: 'Available',
     };
 
     // Then, insert the new book copy.
@@ -167,3 +171,4 @@ export default async function AddBooksPage({ searchParams }: { searchParams: { s
         </section>
     );
 }
+
