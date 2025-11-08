@@ -128,7 +128,7 @@ async function addBookAction(formData: FormData) {
     }
 
     revalidatePath('/addbooks');
-    return redirect('/addbooks?success=true');
+    return redirect('/addbooks/success');
 }
 
 export default async function AddBooksPage({ searchParams }: { searchParams: { success?: string } }) {

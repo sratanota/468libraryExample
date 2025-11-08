@@ -110,7 +110,7 @@ export default function AddBookForm({ allAuthors }: { allAuthors: Author[] }) {
                     </div>
                     <div>
                         <label htmlFor="condition" className="block text-sm font-medium text-gray-700">Condition</label>
-                        <input type="text" id="condition" name="condition" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                        <input type="text" id="condition" name="condition" defaultValue="Good" disabled className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                     </div>
                     <div>
                         <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
@@ -118,7 +118,7 @@ export default function AddBookForm({ allAuthors }: { allAuthors: Author[] }) {
                     </div>
                     <div>
                         <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
-                        <input type="text" id="status" name="status" defaultValue="Available" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                        <input type="text" id="status" name="status" defaultValue="Available" disabled className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                     </div>
                 </div>
             </div>
