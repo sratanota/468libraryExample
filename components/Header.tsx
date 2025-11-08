@@ -1,8 +1,14 @@
-'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function Header() {
+import { cookies } from "next/headers";
+import { createClient } from "../lib/supabase/server";
+
+export default async function Header() {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const { data: { user } } = await supabase.auth.getUser();
   return (
     <header className="flex items-center justify-between px-6 py-4 bg-ddct-black text-white shadow-md">
       <div className="flex items-center gap-3">
@@ -23,7 +29,10 @@ export default function Header() {
 
       <nav className="flex gap-6 text-lg">
         <Link href="/profile" className="hover:text-ddct-yellow">Profile</Link>
-        <Link href="/login" className="hover:text-ddct-yellow">Login</Link>
+        {user ? (<a href="/api/auth/logout" className="hover:text-ddct-yellow">Log Out</a>)
+          : (<Link href="/login" className="hover:text-ddct-yellow">Login</Link>)
+        }
+
       </nav>
     </header>
   );

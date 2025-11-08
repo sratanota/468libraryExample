@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { createClient } from "../../../../lib/supabase/server";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -15,8 +14,9 @@ export async function GET(req:NextRequest){
         return NextResponse.json({error: error.message}, {status:500});
     }else{
         console.log ("user log out successfully");
-        revalidatePath('/','layout');
+        
     }
-    return NextResponse.json({status:200});
+    revalidatePath('/','layout');
+    return NextResponse.redirect(new URL('/',req.url));
 
 }
