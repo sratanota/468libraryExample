@@ -90,6 +90,16 @@ async function addBookAction(formData: FormData) {
 
     // Link authors to book
     if (authorIds.length > 0) {
+        // First, delete existing authors for this book to handle updates
+        const { error: deleteError } = await supabase
+            .from('bookauthor')
+            .delete()
+            .eq('isbn', bookData.isbn);
+
+        if (deleteError) {
+            return redirect(`/error?message=Failed to update book authors: ${deleteError.message}`);
+        }
+
         const bookAuthorLinks = authorIds.map(authorid => ({
             isbn: bookData.isbn,
             authorid: authorid,
